@@ -43,6 +43,8 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	case ';':
 		tok = newToken(token.SEMICOLON, l.ch)
+	case ':':
+		tok = newToken(token.COLON, l.ch)
 	case '(':
 		tok = newToken(token.LPAREN, l.ch)
 	case ')':
@@ -55,6 +57,10 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
 		tok = newToken(token.RBRACE, l.ch)
+	case '[':
+		tok = newToken(token.LBRACKET, l.ch)
+	case ']':
+		tok = newToken(token.RBRACKET, l.ch)
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
 	case '!':
@@ -73,6 +79,9 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LT, l.ch)
 	case '>':
 		tok = newToken(token.GT, l.ch)
+	case '"':
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	//ASCII code for "NUL"
 	case 0:
 		tok.Literal = ""
@@ -92,9 +101,22 @@ func (l *Lexer) NextToken() token.Token {
 			//readNumber is a helper function that reads a number and advances the position of the lexer.
 			tok = newToken(token.ILLEGAL, l.ch)
 		}
-	}	
+	}
 	l.readChar()
 	return tok
+}
+
+//readString is a helper function that reads a string and advances the position of the lexer.
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	for {
+		l.readChar()
+		//ASCII code for "NUL"
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+	return l.input[position:l.position]
 }
 
 //peekChar is a helper function that returns the next character in the input string without advancing the position of the lexer.
